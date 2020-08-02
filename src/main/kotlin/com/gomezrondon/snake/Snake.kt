@@ -8,13 +8,14 @@ class Snake {
     private var sketch: PApplet
     private var x = 0f
     private var y = 0f
-    private var xspeed = 0.1f
+    private var xspeed = 0f
     private var yspeed = 0f
     private var csl = 0f
 
-    constructor(sketch: PApplet, csl:Float) {
+    constructor(sketch: PApplet, csl:Float, xspeed:Float) {
         this.sketch = sketch
         this.csl = csl
+        this.xspeed = xspeed
     }
 
     fun dir(x: Float, y: Float) {
