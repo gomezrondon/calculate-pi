@@ -1,3 +1,5 @@
+package com.gomezrondon.calculatePie
+
 import processing.core.PApplet
 import processing.core.PVector
 
@@ -5,7 +7,7 @@ import processing.core.PVector
 //verctors
 //https://www.youtube.com/watch?v=mWJkvxQXIa8
 fun main() {
-    PApplet.main("UsingProcessing")
+    PApplet.main("com.gomezrondon.calculatePie.UsingProcessing")
 }
 
 class UsingProcessing: PApplet() {
