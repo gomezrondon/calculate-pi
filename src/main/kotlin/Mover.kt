@@ -10,7 +10,7 @@ class Mover {
 
     constructor(sketch: PApplet) {
         this.sketch = sketch
-        location = PVector((sketch.width / 2).toFloat(), (sketch.height / 2).toFloat())
+        location = PVector(sketch.random(sketch.width.toFloat()), (sketch.height / 2).toFloat())
         velocity = PVector(0f, 0f)
         acceleration = PVector(0f, 0f)
     }
