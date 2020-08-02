@@ -1,7 +1,8 @@
 import processing.core.PApplet
 import processing.core.PVector
 
-
+//verctors
+//https://www.youtube.com/watch?v=mWJkvxQXIa8
 fun main() {
     PApplet.main("UsingProcessing")
 }
@@ -19,8 +20,15 @@ class UsingProcessing: PApplet() {
     override fun draw() {
         background(COLOR_WHITE)
 
-        val f = PVector(0.1f, 0.1f)
-        applyForce(f)
+        val gravity = PVector(0.0f, 0.3f)
+        applyForce(gravity)
+
+
+        if (mousePressed) {
+            val wind = PVector(0.2f, 0f)
+            applyForce(wind)
+        }
+
         update()
         checkEdges()
         display()
@@ -47,14 +55,15 @@ class UsingProcessing: PApplet() {
 
 //------------------
     fun applyForce(force: PVector) {
-        acceleration = force
+        acceleration.add(force)
     }
 
     fun update() {
         velocity.add(acceleration)
         location.add(velocity)
+        acceleration.mult(0f)
         kotlin.io.println(location.toString())
-        velocity.limit(5f)
+     //   velocity.limit(5f)
 
     }
 
@@ -67,19 +76,11 @@ class UsingProcessing: PApplet() {
 
     fun checkEdges() {
 
-        val bouncingForce:Float= -1f
-
-        if (location.x > width) {
-            velocity = PVector(-velocity.x, velocity.y)
-            velocity.mult(-0.1f)
-        } else if (location.x < 0) {
-            location.x = width.toFloat()
+        if ((location.x >= width) || (location.x < 0)) {
+            velocity.x = velocity.x * -1;
         }
-        if (location.y > height) {
-            velocity = PVector(velocity.x, -velocity.y)
-
-        } else if (location.y < 0) {
-            location.y = height.toFloat()
+        if ((location.y >= height) || (location.y < 0)) {
+            velocity.y = velocity.y * -1f;
         }
     }
 
