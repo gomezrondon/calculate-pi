@@ -12,6 +12,7 @@ class Snake {
     private var yspeed = 0f
     private var csl = 0f
 
+
     constructor(sketch: PApplet, csl:Float, xspeed:Float) {
         this.sketch = sketch
         this.csl = csl
