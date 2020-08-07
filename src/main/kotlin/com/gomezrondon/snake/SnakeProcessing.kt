@@ -14,8 +14,8 @@ class SnakeProcessing: PApplet() {
 
     val COLOR_BLACK = 50
     val COLOR_WHITE = 255
-    val csl = 50f
-    val constantSpeed = 50f
+    val csl = 25f
+    val constantSpeed = csl
  //   val normalSpeed =  1f
     var f_rate =0
     lateinit var food:PVector
@@ -25,8 +25,8 @@ class SnakeProcessing: PApplet() {
     override fun draw() {
         background(COLOR_BLACK)
 
-        drawBoard()
-        noStroke()
+/*        drawBoard()
+        noStroke()*/
 
         if (mousePressed) {
             setFoodOnBoard()
