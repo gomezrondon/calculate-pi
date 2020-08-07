@@ -29,7 +29,10 @@ class SnakeProcessing: PApplet() {
         noStroke()*/
 
         if (mousePressed) {
-            setFoodOnBoard()
+            while (snake.collision(food)) {
+                setFoodOnBoard()
+            }
+
         }
 
 
@@ -43,7 +46,7 @@ class SnakeProcessing: PApplet() {
         fill(255f, 0f, 0f)
         rect(food.x, food.y, csl, csl)
 
-        if (snake.collision(food)) {
+        while (snake.collision(food)) {
             setFoodOnBoard()
         }
 

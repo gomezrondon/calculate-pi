@@ -28,6 +28,8 @@ class Snake {
         speed = PVector(0f, 0f)
     }
 
+
+
     fun update() {
         location.add(speed)
 
@@ -60,11 +62,15 @@ class Snake {
 
     fun collision(food: PVector): Boolean {
 
-        if (location.x == food.x && location.y == food.y) {
-            tailSize++
-            println("tailSize: $tailSize")
-            return true
+        snakeTail.forEach {
+            if (it.x == food.x && it.y == food.y) {
+                tailSize++
+
+                return true
+            }
         }
+
+        println("tailSize: $tailSize")
 
         return false
     }
