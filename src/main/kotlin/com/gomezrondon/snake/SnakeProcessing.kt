@@ -29,13 +29,11 @@ class SnakeProcessing: PApplet() {
         noStroke()
 
         if (mousePressed) {
-         //   snake.dir(0f, 0f)
             setFoodOnBoard()
         }
 
 
         if (f_rate % 12 == 0) {
-
             snake.update()
             //    snake.stop()
         }
@@ -45,6 +43,9 @@ class SnakeProcessing: PApplet() {
         fill(255f, 0f, 0f)
         rect(food.x, food.y, csl, csl)
 
+
+
+
         f_rate++
      }
 
@@ -52,7 +53,6 @@ class SnakeProcessing: PApplet() {
 
         if (keyCode == PConstants.UP) {
               snake.dir(0f, constantSpeed*-1f)
-
         }else if (keyCode == PConstants.DOWN) {
             snake.dir(0f, constantSpeed)
         }else if (keyCode == PConstants.RIGHT) {

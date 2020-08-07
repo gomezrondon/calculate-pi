@@ -1,45 +1,41 @@
 package com.gomezrondon.snake
 
 import processing.core.PApplet
+import processing.core.PVector
 
 
 class Snake {
 
     private var sketch: PApplet
-    private var x = 0f
-    private var y = 0f
-    private var xspeed = 0f
-    private var yspeed = 0f
+    private var location = PVector(0f, 0f)
+    private var speed = PVector(0f, 0f)
     private var csl = 0f
 
 
     constructor(sketch: PApplet, csl:Float, xspeed:Float) {
         this.sketch = sketch
         this.csl = csl
-        this.xspeed = xspeed
+        speed = PVector(xspeed, 0f)
     }
 
     fun dir(x: Float, y: Float) {
-        xspeed = x
-        yspeed = y
+        speed = PVector(x, y)
     }
 
     fun stop() {
-        xspeed = 0f
-        yspeed = 0f
+        speed = PVector(0f, 0f)
     }
 
     fun update() {
-        x += xspeed
-        y += yspeed
+        location.add(speed)
 
-        x = PApplet.constrain(x, 0f, sketch.width-csl)
-        y = PApplet.constrain(y, 0f, sketch.height-csl)
+        location.x = PApplet.constrain(location.x, 0f, sketch.width-csl)
+        location.y = PApplet.constrain(location.y, 0f, sketch.height-csl)
     }
 
     fun show() {
         sketch.fill(255)
-        sketch.rect(x, y, csl, csl)
+        sketch.rect(location.x, location.y, csl, csl)
     }
 
 
