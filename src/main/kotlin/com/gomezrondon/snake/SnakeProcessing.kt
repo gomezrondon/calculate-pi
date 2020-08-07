@@ -43,7 +43,9 @@ class SnakeProcessing: PApplet() {
         fill(255f, 0f, 0f)
         rect(food.x, food.y, csl, csl)
 
-
+        if (snake.collision(food)) {
+            setFoodOnBoard()
+        }
 
 
         f_rate++

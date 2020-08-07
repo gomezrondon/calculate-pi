@@ -38,5 +38,14 @@ class Snake {
         sketch.rect(location.x, location.y, csl, csl)
     }
 
+    fun collision(food: PVector): Boolean {
+
+        if (location.x == food.x && location.y == food.y) {
+            return true
+        }
+
+        return false
+    }
+
 
 }
