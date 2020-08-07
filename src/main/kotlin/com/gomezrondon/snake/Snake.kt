@@ -24,9 +24,14 @@ class Snake {
         yspeed = y
     }
 
+    fun stop() {
+        xspeed = 0f
+        yspeed = 0f
+    }
+
     fun update() {
-        x += xspeed * csl
-        y += yspeed * csl
+        x += xspeed
+        y += yspeed
 
         x = PApplet.constrain(x, 0f, sketch.width-csl)
         y = PApplet.constrain(y, 0f, sketch.height-csl)
