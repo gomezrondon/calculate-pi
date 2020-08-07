@@ -18,9 +18,9 @@ class SnakeProcessing: PApplet() {
     val constantSpeed = 50f
  //   val normalSpeed =  1f
     var f_rate =0
- lateinit var food:PVector
-
+    lateinit var food:PVector
     lateinit var snake:Snake
+
 
     override fun draw() {
         background(COLOR_BLACK)
@@ -104,11 +104,6 @@ class SnakeProcessing: PApplet() {
             line(0f + csl * i, 0f, 0f + csl * i, height.toFloat())
         }
     }
-
-
-
-
-
 
     // identical use to setup in Processing IDE except for size()
     override fun setup() {
