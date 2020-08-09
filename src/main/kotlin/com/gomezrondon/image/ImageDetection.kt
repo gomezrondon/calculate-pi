@@ -3,6 +3,7 @@ package com.gomezrondon.image
 
 import com.gomezrondon.utils.distMy
 import com.gomezrondon.utils.getCENTER
+import com.gomezrondon.utils.getPixelPosi
 import processing.core.PApplet
 import processing.core.PConstants
 import processing.core.PImage
@@ -36,7 +37,12 @@ class ImageDetection: PApplet() {
                 // if the difference is low (very similar) then is going to be black
                 // if diff is high then gray or white.
                 val diff = abs(b1 - b2)
-                pixels[cIndex] = color(diff)
+
+                if (diff < 100) {
+                    pixels[cIndex] = color(0)
+                } else {
+                    pixels[cIndex] = color(255)
+                }
 
             }
 
@@ -52,9 +58,7 @@ class ImageDetection: PApplet() {
 
     }
 
-    fun getPixelPosi(x:Int, y:Int, w:Int): Int {
-        return x + y * w
-    }
+
 
     // method for setting the size of the window
     override fun settings() {
