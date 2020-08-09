@@ -16,3 +16,6 @@ fun distMy(x1: Int, y1: Int, x2: Int, y2: Int): Float {
 fun getPixelPosi(x:Int, y:Int, w:Int): Int {
     return x + (y * w)
 }
+
+// 950 = x + (y * 50)
+
