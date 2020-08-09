@@ -32,13 +32,13 @@ class ImageDetection: PApplet() {
                 val index = getPixelPosi(x, y,crow.width)
                 val index2 = getPixelPosi(x+1, y,crow.width)
 
-                val b1 = crow.pixels[index]
-                val b2 = crow.pixels[index2]
+                val b1 = brightness(crow.pixels[index])
+                val b2 = brightness(crow.pixels[index2])
                 // if the difference is low (very similar) then is going to be black
                 // if diff is high then gray or white.
                 val diff = abs(b1 - b2)
 
-                if (diff < 100) {
+                if (diff < 10) {
                     pixels[cIndex] = color(0)
                 } else {
                     pixels[cIndex] = color(255)
