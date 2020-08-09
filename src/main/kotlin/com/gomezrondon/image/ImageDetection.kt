@@ -25,7 +25,10 @@ class ImageDetection: PApplet() {
                 val cIndex = getPixelPosi(x, y,width)
                 val ImageIndex = getPixelPosi(x, y,crow.width)
              //    println(">>> y: $y")
-                pixels[cIndex] = crow.pixels[ImageIndex]
+                val r = red(crow.pixels[ImageIndex])
+                val g = green(crow.pixels[ImageIndex])
+                val b = blue(crow.pixels[ImageIndex])
+                pixels[cIndex] = color(r,g,b)
             }
 
         }
