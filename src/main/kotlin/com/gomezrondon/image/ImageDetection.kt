@@ -3,7 +3,6 @@ package com.gomezrondon.image
 
 import processing.core.PApplet
 import processing.core.PImage
-import processing.core.*
 
 fun main() {
     PApplet.main("com.gomezrondon.image.ImageDetection")
@@ -12,10 +11,25 @@ fun main() {
 
 class ImageDetection: PApplet() {
 
-    lateinit var image:PImage
+    lateinit var crow:PImage
 
     override fun draw() {
+        // how to place an image on the canvas
+        // image(crow, 0f, 0f)
 
+        loadPixels() //before doing anything with pixels
+      //  crow.loadPixels()
+
+        for (x in 0..width) {
+            for (y in 0..height-2) { // hay un problema con los 2 ultimos pixeles
+                val cIndex = getPixelPosi(x, y,width)
+                val ImageIndex = getPixelPosi(x, y,crow.width)
+             //    println(">>> y: $y")
+                pixels[cIndex] = crow.pixels[ImageIndex]
+            }
+
+        }
+        updatePixels() // after working with pixels
     }
 
 
@@ -23,31 +37,18 @@ class ImageDetection: PApplet() {
     override fun setup() {
         background(255)
 
-        //1) how to create a line manually
- /*       for (x in 0..width) {
-            // how to set pixel on the screen
-            set(x, 200 , color(255, 0, 0))
-        }*/
-
-        //2) how to create a line manually
-        loadPixels() //before doing anything with pixels
-        for (x in 0..width) {
-            val index = getPixelPosi(x, 200)
-            pixels[index] = color(255, 0, 0)
-        }
-        updatePixels() // after working with pixels
     }
 
-    fun getPixelPosi(x:Int, y:Int): Int {
-        return x + y * width
+    fun getPixelPosi(x:Int, y:Int, w:Int): Int {
+        return x + y * w
     }
 
     // method for setting the size of the window
     override fun settings() {
-        size(600, 400)
+        size(858, 536)
 
        // image = PImage()
-        image =  loadImage("C:\\temp\\test\\processing-3-kotlin\\src\\main\\kotlin\\com\\gomezrondon\\image\\360.jpg")
+        crow =  loadImage("C:\\temp\\test\\processing-3-kotlin\\src\\main\\kotlin\\com\\gomezrondon\\image\\360.jpg")
 
     }
 
