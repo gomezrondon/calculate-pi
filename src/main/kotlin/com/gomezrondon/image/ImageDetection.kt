@@ -29,20 +29,10 @@ class ImageDetection: PApplet() {
         for (x in 0..width) {
             for (y in 0..height-2) { // hay un problema con los 2 ultimos pixeles
                 val cIndex = getPixelPosi(x, y,width)
-                val index = getPixelPosi(x, y,crow.width)
-                val index2 = getPixelPosi(x+1, y,crow.width)
+                val color = crow.get(x, y)
 
-                val b1 = brightness(crow.pixels[index])
-                val b2 = brightness(crow.pixels[index2])
-                // if the difference is low (very similar) then is going to be black
-                // if diff is high then gray or white.
-                val diff = abs(b1 - b2)
 
-                if (diff < 10) {
-                    pixels[cIndex] = color(0)
-                } else {
-                    pixels[cIndex] = color(255)
-                }
+                pixels[cIndex] = color(color)
 
             }
 
