@@ -1,8 +1,12 @@
 package com.gomezrondon.image
 
 
+import com.gomezrondon.utils.distMy
+import com.gomezrondon.utils.getCENTER
 import processing.core.PApplet
+import processing.core.PConstants
 import processing.core.PImage
+import processing.core.PVector
 
 fun main() {
     PApplet.main("com.gomezrondon.image.ImageDetection")
@@ -12,6 +16,7 @@ fun main() {
 class ImageDetection: PApplet() {
 
     lateinit var crow:PImage
+
 
     override fun draw() {
         // how to place an image on the canvas
@@ -28,12 +33,17 @@ class ImageDetection: PApplet() {
                 val r = red(crow.pixels[ImageIndex])
                 val g = green(crow.pixels[ImageIndex])
                 val b = blue(crow.pixels[ImageIndex])
-                pixels[cIndex] = color(r,g,b)
+/*                val center = getCENTER(width, height)
+                val distMy = distMy( center.x, center.y, x, y)*/
+
+                val distMy = distMy( mouseX, mouseY, x, y)
+                pixels[cIndex] = color(r+distMy,g+distMy,b+distMy)
             }
 
         }
         updatePixels() // after working with pixels
     }
+
 
 
     // identical use to setup in Processing IDE except for size()
