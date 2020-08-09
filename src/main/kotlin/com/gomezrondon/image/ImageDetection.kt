@@ -12,7 +12,7 @@ fun main() {
 class ImageDetection : PApplet() {
 
     lateinit var chrome: PImage
-
+    val filepath = "C:\\temp\\test\\processing-3-kotlin\\src\\main\\kotlin\\com\\gomezrondon\\image\\my23x.png"
 
     override fun draw() {
 
@@ -33,17 +33,21 @@ class ImageDetection : PApplet() {
         updatePixels() // after working with pixels*/
     }
 
-    data class SamplingPoint(var x:Int= 0
-                             , var y:Int= 0
+    data class SamplingPoint(var x: Int = 0
+                             , var y: Int = 0
                              , var color: Int
-                             , var porcentajeList:List<Int> = mutableListOf() )
+                             , var label:String = "NO_LABEL"
+                             , var porcentajeList: List<Int> = mutableListOf()){
+
+}
 
     private fun samplingImage() {
         loadPixels() //before doing anything with pixels
         chrome.loadPixels()
         val samplingList: MutableList<SamplingPoint> = mutableListOf<SamplingPoint>()
-        for (x in 0..width  ) {
-            for (y in 0..height - 2  ) { // hacemos un sampling 4 x 4
+        val stepvalue = 2
+        for (x in 0..width  step stepvalue) {
+            for (y in 0..height - 2  step stepvalue) { // hacemos un sampling 4 x 4
                 val cIndex = getPixelPosi(x, y, width)
 
                 //   val g = green(chrome.get(x, y))
@@ -67,10 +71,10 @@ class ImageDetection : PApplet() {
                 val notEmpty = samplingList.map { it.color }.filter { containColor(it, color) }.isEmpty()
 
                 if (notEmpty) {
+                    val label= getColorLabel(color)
+                    samplingList.add(SamplingPoint(x, y, color, label, getPorcentajeColor(color)))
 
-                    samplingList.add(SamplingPoint(x, y, color, getPorcentajeColor(color)))
-
-                    kotlin.io.println("R " + red(color) + " G " + green(color) + " B " + blue(color))
+                    kotlin.io.println("${label} = R " + red(color) + " G " + green(color) + " B " + blue(color))
                 }
 
                 //  pixels[cIndex] = color(color)
@@ -88,7 +92,7 @@ class ImageDetection : PApplet() {
 
 
         samplingList.forEach {
-            kotlin.io.println( " X: ${it.x}, Y: ${it.y}       R% " + it.porcentajeList[0] + " G% " + it.porcentajeList[1]+ " B% " + it.porcentajeList[2])
+            kotlin.io.println( " X: ${it.x}, Y: ${it.y}  ${it.label}   R% " + it.porcentajeList[0] + " G% " + it.porcentajeList[1]+ " B% " + it.porcentajeList[2])
         }
 
         val filter = samplingList.filter { it.porcentajeList[0] > 80 }
@@ -102,7 +106,49 @@ class ImageDetection : PApplet() {
     }
 
 
+    fun getColorLabel(color: Int): String {
+        val red =red(color)
+        val green= green(color)
+        val blue = blue(color)
 
+
+        if (blue > 191) {
+            if (red < 191 && green < 191) {
+                return "BLUE"
+            }
+        }
+
+        if (red > 154) {
+            if (green < 91 && blue < 91) {
+                return "RED"
+            }
+        }
+
+        if (green > 143) {
+            if (red < 191 && blue < 191) {
+                return "GREEN"
+            }
+        }
+
+
+
+
+        return "NO_LABEL"
+
+    }
+
+/*
+    Red = 255 - 0 - 0
+    240 -120 - 120
+
+
+    Green = 0 - 255 - 0
+    191- 240 - 191
+
+    Azul =  0  - 0 - 230 -- min
+    189 -189- 255 -- max
+
+*/
 
 
     private fun f2dec(value: Float): String {
@@ -173,10 +219,12 @@ class ImageDetection : PApplet() {
 
     // method for setting the size of the window
     override fun settings() {
-        size(56, 46)
+       // size(250, 180)
+        size(384, 216)
 
         // image = PImage()
-        chrome = loadImage("C:\\temp\\test\\processing-3-kotlin\\src\\main\\kotlin\\com\\gomezrondon\\image\\test12.png")
+
+        chrome = loadImage(filepath)
 
     }
 
