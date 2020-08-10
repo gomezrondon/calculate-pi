@@ -1,6 +1,7 @@
 package com.gomezrondon.image
 
 
+import com.gomezrondon.utils.distMy
 import com.gomezrondon.utils.getPixelPosi
 import processing.core.PApplet
 import processing.core.PConstants
@@ -13,7 +14,7 @@ fun main() {
 class ImageDetection : PApplet() {
 
     lateinit var chrome: PImage
-    val filepath = "C:\\temp\\test\\processing-3-kotlin\\src\\main\\kotlin\\com\\gomezrondon\\image\\test12.png"
+    val filepath = "C:\\temp\\test\\processing-3-kotlin\\src\\main\\kotlin\\com\\gomezrondon\\image\\22.png"
 
     override fun draw() {
 
@@ -38,6 +39,7 @@ class ImageDetection : PApplet() {
                              , var y: Int = 0
                              , var color: Int
                              , var label:String = "NO_LABEL"
+                             , var group:Int= 0
                              , var porcentajeList: List<Int> = mutableListOf()){
 
 }
@@ -58,10 +60,11 @@ class ImageDetection : PApplet() {
                 var color = chrome.get(x, y)
 
                 val notEmpty = samplingList.map { it.color }.filter { containColor(it, color) }.isEmpty()
+                val label= getColorLabel(color)
+                if (notEmpty && label!= "NO_LABEL") {
 
-                if (notEmpty) {
-                    val label= getColorLabel(color)
-                    samplingList.add(SamplingPoint(x, y, color, label, getPorcentajeColor(color)))
+
+                    samplingList.add(SamplingPoint(x, y, color, label, 0 ,getPorcentajeColor(color)))
 
                     kotlin.io.println("${label} = R " + red(color) + " G " + green(color) + " B " + blue(color))
                 }
@@ -95,10 +98,45 @@ class ImageDetection : PApplet() {
             rect(it.x.toFloat(), it.y.toFloat(), 2f, 2f)
         }
 
-        findCluster(filterRed)
-        findCluster(filterGre)
-        findCluster(filterYel)
-        findCluster(filterBlu)
+
+
+        val maxDist = 10
+        var minDis = 100
+        var group= 1
+        var samplGroup: MutableList<SamplingPoint> = mutableListOf<SamplingPoint>()
+        for (i in 0..filterRed.size - 2) {
+            val samp1 = filterRed[i]
+            val samp2 = filterRed[i+1]
+
+             val dis  = distMy(samp1.x, samp1.y, samp2.x, samp2.y).toInt()
+  /*          if (dis < minDis) {
+                minDis = dis
+            }*/
+
+            if (dis <= maxDist) {
+                samp1.group = group
+                samp2.group = group
+                samplGroup.add(samp1)
+                samplGroup.add(samp2)
+            } else {
+                samp1.group = group
+                samplGroup.add(samp1)
+                group++
+                samp2.group = group
+                samplGroup.add(samp2)
+            }
+
+            kotlin.io.println("Dist red: "+ dis + " group "+group)
+        }
+
+        kotlin.io.println("min Dist red: "+ minDis)
+
+        val filter = samplGroup.filter { it.group == 18 }
+        findCluster(filter)
+        /*        findCluster(filterGre)
+               findCluster(filterYel)
+               findCluster(filterBlu)*/
+
 
     }
 
@@ -106,9 +144,9 @@ class ImageDetection : PApplet() {
         var centerPoint = Pair(0f, 0f)
         val xAvg = filterRed.map { it.x }.average()
         val yAvg = filterRed.map { it.y }.average()
-        stroke(0)
+        stroke(0f, 0f, 255f)
         rectMode(PConstants.CENTER)
-        rect(xAvg.toFloat(), yAvg.toFloat(), 2f, 2f)
+        rect(xAvg.toFloat(), yAvg.toFloat(), 10f, 10f)
     }
 
 
