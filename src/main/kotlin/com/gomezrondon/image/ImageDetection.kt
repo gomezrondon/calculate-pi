@@ -82,7 +82,7 @@ class ImageDetection : PApplet() {
 
         samplingList.forEach {
 
-            val colorDistance = colorDistance(color(255, 76, 76), it.color)
+            val colorDistance = colorDistance(color(255, 255, 103), it.color) //Blue
 
 
             kotlin.io.println( " X: ${it.x}, Y: ${it.y}  ${it.label}   R% " + it.porcentajeList[0] + " G% " + it.porcentajeList[1]+ " B% " + it.porcentajeList[2]+ " Color Distance: " + colorDistance)
@@ -192,24 +192,23 @@ class ImageDetection : PApplet() {
         val blue = blue(color)
 
 
-        if (blue > 191) {
-            if (red < 191 && green < 191) {
-                return "BLUE"
-            }
+        val distRed = colorDistance(color(255, 76, 76), color)
+        val disBlue = colorDistance(color(68, 63, 255), color)
+        val distYel = colorDistance(color(255, 255, 0), color)
+
+
+        if (disBlue >= 175 && disBlue < 200) {
+            return "BLUE"
+        }
+        if (distRed >= 0 && distRed < 100) {
+            return "RED"
+        }
+
+        if (distYel >= 130 && distYel < 140) {
+            return "YELLOW"
         }
 
 
-        if (red > 223) {
-            if (green > 200 && blue < 170) {
-                return "YELLOW"
-            }
-        }
-
-        if (red > 154) {
-            if (green < 91 && blue < 91) {
-                return "RED"
-            }
-        }
 
         if (green > 143) {
             if (red < 191 && blue < 191) {
