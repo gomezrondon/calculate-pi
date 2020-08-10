@@ -3,6 +3,7 @@ package com.gomezrondon.image
 
 import com.gomezrondon.utils.getPixelPosi
 import processing.core.PApplet
+import processing.core.PConstants
 import processing.core.PImage
 
 fun main() {
@@ -12,7 +13,7 @@ fun main() {
 class ImageDetection : PApplet() {
 
     lateinit var chrome: PImage
-    val filepath = "C:\\temp\\test\\processing-3-kotlin\\src\\main\\kotlin\\com\\gomezrondon\\image\\my23x.png"
+    val filepath = "C:\\temp\\test\\processing-3-kotlin\\src\\main\\kotlin\\com\\gomezrondon\\image\\test12.png"
 
     override fun draw() {
 
@@ -42,6 +43,9 @@ class ImageDetection : PApplet() {
 }
 
     private fun samplingImage() {
+
+       // image(chrome, 0f, 0f)
+
         loadPixels() //before doing anything with pixels
         chrome.loadPixels()
         val samplingList: MutableList<SamplingPoint> = mutableListOf<SamplingPoint>()
@@ -52,21 +56,6 @@ class ImageDetection : PApplet() {
 
                 //   val g = green(chrome.get(x, y))
                 var color = chrome.get(x, y)
-
-  /*              //is black
-                val isBlack = if_ColorBelow(color, 30)
-                if (isBlack) {
-                    color = color(0, 0, 0)
-                }
-                val isWhite = if_ColorAbove(color, 240)
-                if (isWhite) {
-                    color = color(255, 255, 255)
-                }*/
-
-                // create high contrast colors
-                //color = oneColorHigh(color)
-
-
 
                 val notEmpty = samplingList.map { it.color }.filter { containColor(it, color) }.isEmpty()
 
@@ -86,25 +75,48 @@ class ImageDetection : PApplet() {
 
         var distList:MutableList<Int> = mutableListOf<Int>()
 
-
-
         kotlin.io.println("samplingList size: ${samplingList.size}")
-
 
         samplingList.forEach {
             kotlin.io.println( " X: ${it.x}, Y: ${it.y}  ${it.label}   R% " + it.porcentajeList[0] + " G% " + it.porcentajeList[1]+ " B% " + it.porcentajeList[2])
         }
 
-        val filter = samplingList.filter { it.porcentajeList[0] > 80 }
+        val filterRed = samplingList.filter { it.label == "RED" }
+        val filterGre = samplingList.filter { it.label == "GREEN" }
+        val filterYel = samplingList.filter { it.label == "YELLOW" }
+        val filterBlu = samplingList.filter { it.label == "BLUE" }
         updatePixels() // after working with pixels*/
 
 
-        samplingList.forEach {
+// using euclidean idstance to compre colors
+        noFill()
+        samplingList .forEach {
             stroke(it.color)
             rect(it.x.toFloat(), it.y.toFloat(), 2f, 2f)
         }
+
+        findCluster(filterRed)
+        findCluster(filterGre)
+        findCluster(filterYel)
+        findCluster(filterBlu)
+
     }
 
+    private fun findCluster(filterRed: List<SamplingPoint>) {
+        var centerPoint = Pair(0f, 0f)
+        val xAvg = filterRed.map { it.x }.average()
+        val yAvg = filterRed.map { it.y }.average()
+        stroke(0)
+        rectMode(PConstants.CENTER)
+        rect(xAvg.toFloat(), yAvg.toFloat(), 2f, 2f)
+    }
+
+
+    fun midPoint(x: Float, y: Float, x1:Float, y1:Float): Pair<Float, Float> {
+        val mx: Float = ((x + x1) / 2).toFloat()
+        val my: Float = ((y + y1) / 2).toFloat()
+        return Pair (mx , my)
+    }
 
     fun getColorLabel(color: Int): String {
         val red =red(color)
@@ -115,6 +127,13 @@ class ImageDetection : PApplet() {
         if (blue > 191) {
             if (red < 191 && green < 191) {
                 return "BLUE"
+            }
+        }
+
+
+        if (red > 223) {
+            if (green > 200 && blue < 170) {
+                return "YELLOW"
             }
         }
 
@@ -131,25 +150,9 @@ class ImageDetection : PApplet() {
         }
 
 
-
-
         return "NO_LABEL"
 
     }
-
-/*
-    Red = 255 - 0 - 0
-    240 -120 - 120
-
-
-    Green = 0 - 255 - 0
-    191- 240 - 191
-
-    Azul =  0  - 0 - 230 -- min
-    189 -189- 255 -- max
-
-*/
-
 
     private fun f2dec(value: Float): String {
         return "%.1f".format(value)
