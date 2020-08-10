@@ -100,7 +100,7 @@ class ImageDetection : PApplet() {
 
 
 
-        val maxDist = 10
+        val maxDist = 20
         var minDis = 100
         var group= 1
         var samplGroup: MutableList<SamplingPoint> = mutableListOf<SamplingPoint>()
@@ -131,8 +131,15 @@ class ImageDetection : PApplet() {
 
         kotlin.io.println("min Dist red: "+ minDis)
 
-        val filter = samplGroup.filter { it.group == 18 }
-        findCluster(filter)
+        val filter = samplGroup.filter { it.group == 5 }
+
+        val mutableByLength: MutableMap<Int, MutableList<SamplingPoint>> = samplGroup.groupByTo(mutableMapOf()) { it.group }
+
+        mutableByLength.forEach { key, Value ->
+            kotlin.io.println(">>>>>>>>>>> Group : "+ key)
+            findCluster(Value)
+        }
+
         /*        findCluster(filterGre)
                findCluster(filterYel)
                findCluster(filterBlu)*/
