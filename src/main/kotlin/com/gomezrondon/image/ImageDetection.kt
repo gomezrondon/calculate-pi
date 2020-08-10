@@ -63,10 +63,10 @@ class ImageDetection : PApplet() {
                 val label= getColorLabel(color)
                 if (notEmpty && label!= "NO_LABEL") {
 
-
+                    val colorDistance = colorDistance(color(255, 76, 76), color)
                     samplingList.add(SamplingPoint(x, y, color, label, 0 ,getPorcentajeColor(color)))
 
-                    kotlin.io.println("${label} = R " + red(color) + " G " + green(color) + " B " + blue(color))
+                    kotlin.io.println("${label} = R " + red(color) + " G " + green(color) + " B " + blue(color) +  " Color Distance: " + colorDistance)
                 }
 
                 //  pixels[cIndex] = color(color)
@@ -81,7 +81,11 @@ class ImageDetection : PApplet() {
         kotlin.io.println("samplingList size: ${samplingList.size}")
 
         samplingList.forEach {
-            kotlin.io.println( " X: ${it.x}, Y: ${it.y}  ${it.label}   R% " + it.porcentajeList[0] + " G% " + it.porcentajeList[1]+ " B% " + it.porcentajeList[2])
+
+            val colorDistance = colorDistance(color(255, 76, 76), it.color)
+
+
+            kotlin.io.println( " X: ${it.x}, Y: ${it.y}  ${it.label}   R% " + it.porcentajeList[0] + " G% " + it.porcentajeList[1]+ " B% " + it.porcentajeList[2]+ " Color Distance: " + colorDistance)
         }
 
         val filterRed = samplingList.filter { it.label == "RED" }
@@ -108,7 +112,10 @@ class ImageDetection : PApplet() {
             val samp1 = filterRed[i]
             val samp2 = filterRed[i+1]
 
-             val dis  = distMy(samp1.x, samp1.y, samp2.x, samp2.y).toInt()
+
+
+
+            val dis  = distMy(samp1.x, samp1.y, samp2.x, samp2.y).toInt()
   /*          if (dis < minDis) {
                 minDis = dis
             }*/
@@ -146,6 +153,22 @@ class ImageDetection : PApplet() {
 
 
     }
+
+
+     fun colorDistance(color1: Int, color2: Int): Int {
+        val red =  red(color1)
+        val red2 = red(color2)
+
+        val green =  green(color1)
+        val green2 = green(color2)
+
+        val blue =  blue(color1)
+        val blue2 = blue(color2)
+
+        val dist = sqrt(pow(red2 - red, 2f) + pow(green2 - green, 2f) + pow(blue2 - blue, 2f) )
+        return dist.toInt()
+    }
+
 
     private fun findCluster(filterRed: List<SamplingPoint>) {
         var centerPoint = Pair(0f, 0f)
