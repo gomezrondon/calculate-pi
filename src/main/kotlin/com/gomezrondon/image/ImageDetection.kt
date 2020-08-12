@@ -70,7 +70,7 @@ class ImageDetection : PApplet() {
                     val colorDistance = colorDistance(color(255, 76, 76), color)
                     samplingList.add(SamplingPoint(x, y, color, label, 0 ,getPorcentajeColor(color)))
 
-                    kotlin.io.println("${label} = R " + red(color) + " G " + green(color) + " B " + blue(color) +  " Color Distance: " + colorDistance)
+    //                kotlin.io.println("${label} = R " + red(color) + " G " + green(color) + " B " + blue(color) +  " Color Distance: " + colorDistance)
                 }
 
                 //  pixels[cIndex] = color(color)
@@ -82,112 +82,113 @@ class ImageDetection : PApplet() {
 
         var distList:MutableList<Int> = mutableListOf<Int>()
 
-        kotlin.io.println("samplingList size: ${samplingList.size}")
+     //   kotlin.io.println("samplingList size: ${samplingList.size}")
 
+/*
         samplingList.forEach {
 
             val colorDistance = colorDistance(color(255, 255, 103), it.color) //Blue
 
 
-            kotlin.io.println( " X: ${it.x}, Y: ${it.y}  ${it.label}   R% " + it.porcentajeList[0] + " G% " + it.porcentajeList[1]+ " B% " + it.porcentajeList[2]+ " Color Distance: " + colorDistance)
+          kotlin.io.println( " X: ${it.x}, Y: ${it.y}  ${it.label}   R% " + it.porcentajeList[0] + " G% " + it.porcentajeList[1]+ " B% " + it.porcentajeList[2]+ " Color Distance: " + colorDistance)
         }
+*/
 
-        val filterRed = samplingList.filter { it.label == "RED" }
-        val filterGre = samplingList.filter { it.label == "GREEN" }
-        val filterYel = samplingList.filter { it.label == "YELLOW" }
-        val filterBlu = samplingList.filter { it.label == "BLUE" }
+
+
+        val groupByToColor = samplingList.groupByTo(mutableMapOf()) { it.label }
+
         updatePixels() // after working with pixels*/
 
 
 // using euclidean idstance to compre colors
         noFill()
-        samplingList .forEach {
-            stroke(it.color)
-            rect(it.x.toFloat(), it.y.toFloat(), 2f, 2f)
+
+        groupByToColor.forEach { Key, Value ->
+            Value .forEach {
+                stroke(it.color)
+               // stroke(0f, 0f, 255f)
+                rect(it.x.toFloat(), it.y.toFloat(), 2f, 2f)
+            }
         }
+
+
+
 
 
 
         val maxDist = 20
         var group= 1
         val samplGroup: MutableList<SamplingPoint> = mutableListOf()
-        for (i in 0..filterRed.size - 2) {
-            val samp1 = filterRed[i]
-            val samp2 = filterRed[i+1]
 
-            val dis  = distMy(samp1.x, samp1.y, samp2.x, samp2.y).toInt()
-
-             if (dis <= maxDist) {
-                samp1.group = group
-                samp2.group = group
-                samplGroup.add(samp1)
-                samplGroup.add(samp2)
-            } else {
-                samp1.group = group
-                samplGroup.add(samp1)
-                group++
-                samp2.group = group
-                samplGroup.add(samp2)
-            }
-
-            kotlin.io.println("Dist red: "+ dis + " group "+group)
+        groupByToColor.forEach { Key, Value ->
+            groupByColorAndProximity(Value, maxDist, group, samplGroup)
         }
-
 
 
         //val filter = samplGroup.filter { it.group == 5 }
 
-        val mutableByLength: MutableMap<Int, MutableList<SamplingPoint>> = samplGroup.groupByTo(mutableMapOf()) { it.group }
+    //    val mutableByLength: MutableMap<Int, MutableList<SamplingPoint>> = samplGroup.groupByTo(mutableMapOf()) { it.group }
 
-        mutableByLength.forEach { key, Value ->
-          //  kotlin.io.println(">>>>>>>>>>> Group : "+ key)
-            val clusterCenter = findClusterCenter(Value)
-            Value.forEach {
-                it.clusterCenter = clusterCenter
-            }
-        }
+        // find the center of each cluster
+        findCenterPointOfClusters(groupByToColor)
 
-        mutableByLength.forEach { key, Value ->
-          //  kotlin.io.println(">>>>>>>>>>> Group : "+ key)
-            val clusterCenter1 = Value.get(0).clusterCenter
-            val group1 = Value.get(0).group
-            mutableByLength.forEach { key2, Value2 ->
-                val clusterCenter2 = Value2.get(0).clusterCenter
 
-                val distancia = distMy(clusterCenter1.x, clusterCenter1.y, clusterCenter2.x, clusterCenter2.y)
-                if (distancia > 0 && distancia < 11   ) {
-                    Value2.forEach { it.group = group1 }
+        // combine near by cluster that overlap
+        groupByToColor.forEach { keyColor, ValueColor ->
+            val groupByToGroup = ValueColor.groupByTo(mutableMapOf()) { it.group }
+            groupByToGroup.forEach { key, Value ->
+                //  kotlin.io.println(">>>>>>>>>>> Group : "+ key)
+                val clusterCenter1 = Value.get(0).clusterCenter
+                val group1 = Value.get(0).group
+                groupByToGroup.forEach { key2, Value2 ->
+                    val clusterCenter2 = Value2.get(0).clusterCenter
+
+                    val distancia = distMy(clusterCenter1.x, clusterCenter1.y, clusterCenter2.x, clusterCenter2.y)
+                    if (distancia > 0 && distancia < 11   ) {
+                        Value2.forEach { it.group = group1 }
+                    }
                 }
             }
         }
 
 
 
-    //    val valueList = ArrayList(mutableByLength.values)
-     //   mutableByLength.values.flatMap { it }.map { it.group }.distinct().forEach { kotlin.io.println("Group >>> $it") }
-        val groupByToGrouping = mutableByLength.values.flatMap { it }.groupByTo(mutableMapOf()) { it.group }
+        // find the center of each cluster
+        findCenterPointOfClusters(groupByToColor)
 
-        // otra vez
-        groupByToGrouping.forEach { key, Value ->
-            //  kotlin.io.println(">>>>>>>>>>> Group : "+ key)
-            val clusterCenter = findClusterCenter(Value)
-            Value.forEach {
-                it.clusterCenter = clusterCenter
+        kotlin.io.println(5)
+
+
+        groupByToColor.forEach { keyColor, ValueColor ->
+            val groupByToGroup = ValueColor.groupByTo(mutableMapOf()) { it.group }
+
+            groupByToGroup.forEach { key, Value ->
+                kotlin.io.println(">>>>>>>>>>> Group : "+ key)
+                val clusterCenter = Value.get(0).clusterCenter
+
+                val minX = Value.map { it.x }.min()!!.or(0)
+                val maxX = Value.map { it.x }.max()!!.or(0)
+                val dits = maxX - minX
+
+                val minY = Value.map { it.y }.min()!!.or(0)
+                val maxY = Value.map { it.y }.max()!!.or(0)
+                val ditsY = maxY - minY
+
+                createClusterBorder(clusterCenter.x, clusterCenter.y, dits, ditsY)
             }
         }
 
 
-        groupByToGrouping.forEach { key, Value ->
-            kotlin.io.println(">>>>>>>>>>> Group : "+ key)
-            val clusterCenter = Value.get(0).clusterCenter
 
-            val minX = Value.map { it.x }.min()!!.or(0)
-            val maxX = Value.map { it.x }.max()!!.or(0)
-            val dits = maxX - minX
 
-            createClusterBorder(clusterCenter.x, clusterCenter.y, dits)
-        }
+/*
 
+
+
+
+
+*/
 
 
         /*        findCluster(filterGre)
@@ -195,6 +196,49 @@ class ImageDetection : PApplet() {
                findCluster(filterBlu)*/
 
 
+    }
+
+    private fun findCenterPointOfClusters(groupByToColor: MutableMap<String, MutableList<SamplingPoint>>) {
+        groupByToColor.forEach { keyColor, ValueColor ->
+            val groupByToGroup = ValueColor.groupByTo(mutableMapOf()) { it.group }
+            groupByToGroup.forEach { key, Value ->
+                //  kotlin.io.println(">>>>>>>>>>> Group : "+ key)
+                val clusterCenter = findClusterCenter(Value)
+                Value.forEach {
+                    it.clusterCenter = clusterCenter
+                }
+            }
+        }
+    }
+
+    private fun groupByColorAndProximity(
+        filterRed: List<SamplingPoint>,
+        maxDist: Int,
+        group: Int,
+        samplGroup: MutableList<SamplingPoint>
+    ) {
+        var group1 = group
+        for (i in 0..filterRed.size - 2) {
+            val samp1 = filterRed[i]
+            val samp2 = filterRed[i + 1]
+
+            val dis = distMy(samp1.x, samp1.y, samp2.x, samp2.y).toInt()
+
+            if (dis <= maxDist) {
+                samp1.group = group1
+                samp2.group = group1
+                samplGroup.add(samp1)
+                samplGroup.add(samp2)
+            } else {
+                samp1.group = group1
+                samplGroup.add(samp1)
+                group1++
+                samp2.group = group1
+                samplGroup.add(samp2)
+            }
+
+            kotlin.io.println("Dist red: " + dis + " group " + group1)
+        }
     }
 
 
@@ -207,10 +251,10 @@ class ImageDetection : PApplet() {
         return PointCluster(xAvg.toInt(), yAvg.toInt())
     }
 
-    private fun createClusterBorder(xAvg: Int, yAvg: Int, dist:Int) {
+    private fun createClusterBorder(xAvg: Int, yAvg: Int, dist: Int, ditsY: Int) {
         stroke(0f, 0f, 255f)
         rectMode(PConstants.CENTER)
-        rect(xAvg.toFloat(), yAvg.toFloat(), dist.toFloat(), dist.toFloat())
+        rect(xAvg.toFloat(), yAvg.toFloat(), dist.toFloat(), ditsY.toFloat())
     }
 
 
