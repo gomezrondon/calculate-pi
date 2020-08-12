@@ -40,9 +40,13 @@ class ImageDetection : PApplet() {
                              , var color: Int
                              , var label:String = "NO_LABEL"
                              , var group:Int= 0
-                             , var porcentajeList: List<Int> = mutableListOf()){
+                             , var porcentajeList: List<Int> = mutableListOf()
 
-}
+    ){
+        lateinit var clusterCenter: PointCluster
+
+
+    }
 
     private fun samplingImage() {
 
@@ -105,22 +109,15 @@ class ImageDetection : PApplet() {
 
 
         val maxDist = 20
-        var minDis = 100
         var group= 1
-        var samplGroup: MutableList<SamplingPoint> = mutableListOf<SamplingPoint>()
+        val samplGroup: MutableList<SamplingPoint> = mutableListOf()
         for (i in 0..filterRed.size - 2) {
             val samp1 = filterRed[i]
             val samp2 = filterRed[i+1]
 
-
-
-
             val dis  = distMy(samp1.x, samp1.y, samp2.x, samp2.y).toInt()
-  /*          if (dis < minDis) {
-                minDis = dis
-            }*/
 
-            if (dis <= maxDist) {
+             if (dis <= maxDist) {
                 samp1.group = group
                 samp2.group = group
                 samplGroup.add(samp1)
@@ -136,16 +133,62 @@ class ImageDetection : PApplet() {
             kotlin.io.println("Dist red: "+ dis + " group "+group)
         }
 
-        kotlin.io.println("min Dist red: "+ minDis)
 
-        val filter = samplGroup.filter { it.group == 5 }
+
+        //val filter = samplGroup.filter { it.group == 5 }
 
         val mutableByLength: MutableMap<Int, MutableList<SamplingPoint>> = samplGroup.groupByTo(mutableMapOf()) { it.group }
 
         mutableByLength.forEach { key, Value ->
-            kotlin.io.println(">>>>>>>>>>> Group : "+ key)
-            findCluster(Value)
+          //  kotlin.io.println(">>>>>>>>>>> Group : "+ key)
+            val clusterCenter = findClusterCenter(Value)
+            Value.forEach {
+                it.clusterCenter = clusterCenter
+            }
         }
+
+        mutableByLength.forEach { key, Value ->
+          //  kotlin.io.println(">>>>>>>>>>> Group : "+ key)
+            val clusterCenter1 = Value.get(0).clusterCenter
+            val group1 = Value.get(0).group
+            mutableByLength.forEach { key2, Value2 ->
+                val clusterCenter2 = Value2.get(0).clusterCenter
+
+                val distancia = distMy(clusterCenter1.x, clusterCenter1.y, clusterCenter2.x, clusterCenter2.y)
+                if (distancia > 0 && distancia < 11   ) {
+                    Value2.forEach { it.group = group1 }
+                }
+            }
+        }
+
+
+
+    //    val valueList = ArrayList(mutableByLength.values)
+     //   mutableByLength.values.flatMap { it }.map { it.group }.distinct().forEach { kotlin.io.println("Group >>> $it") }
+        val groupByToGrouping = mutableByLength.values.flatMap { it }.groupByTo(mutableMapOf()) { it.group }
+
+        // otra vez
+        groupByToGrouping.forEach { key, Value ->
+            //  kotlin.io.println(">>>>>>>>>>> Group : "+ key)
+            val clusterCenter = findClusterCenter(Value)
+            Value.forEach {
+                it.clusterCenter = clusterCenter
+            }
+        }
+
+
+        groupByToGrouping.forEach { key, Value ->
+            kotlin.io.println(">>>>>>>>>>> Group : "+ key)
+            val clusterCenter = Value.get(0).clusterCenter
+
+            val minX = Value.map { it.x }.min()!!.or(0)
+            val maxX = Value.map { it.x }.max()!!.or(0)
+            val dits = maxX - minX
+
+            createClusterBorder(clusterCenter.x, clusterCenter.y, dits)
+        }
+
+
 
         /*        findCluster(filterGre)
                findCluster(filterYel)
@@ -155,7 +198,23 @@ class ImageDetection : PApplet() {
     }
 
 
-     fun colorDistance(color1: Int, color2: Int): Int {
+    data class PointCluster(val x: Int, val y: Int)
+
+    private fun findClusterCenter(filterRed: List<SamplingPoint>): PointCluster {
+        var centerPoint = Pair(0f, 0f)
+        val xAvg = filterRed.map { it.x }.average()
+        val yAvg = filterRed.map { it.y }.average()
+        return PointCluster(xAvg.toInt(), yAvg.toInt())
+    }
+
+    private fun createClusterBorder(xAvg: Int, yAvg: Int, dist:Int) {
+        stroke(0f, 0f, 255f)
+        rectMode(PConstants.CENTER)
+        rect(xAvg.toFloat(), yAvg.toFloat(), dist.toFloat(), dist.toFloat())
+    }
+
+
+    fun colorDistance(color1: Int, color2: Int): Int {
         val red =  red(color1)
         val red2 = red(color2)
 
@@ -167,16 +226,6 @@ class ImageDetection : PApplet() {
 
         val dist = sqrt(pow(red2 - red, 2f) + pow(green2 - green, 2f) + pow(blue2 - blue, 2f) )
         return dist.toInt()
-    }
-
-
-    private fun findCluster(filterRed: List<SamplingPoint>) {
-        var centerPoint = Pair(0f, 0f)
-        val xAvg = filterRed.map { it.x }.average()
-        val yAvg = filterRed.map { it.y }.average()
-        stroke(0f, 0f, 255f)
-        rectMode(PConstants.CENTER)
-        rect(xAvg.toFloat(), yAvg.toFloat(), 10f, 10f)
     }
 
 
@@ -208,22 +257,16 @@ class ImageDetection : PApplet() {
             return "YELLOW"
         }
 
-
-
         if (green > 143) {
             if (red < 191 && blue < 191) {
                 return "GREEN"
             }
         }
 
-
         return "NO_LABEL"
 
     }
 
-    private fun f2dec(value: Float): String {
-        return "%.1f".format(value)
-    }
 
 
     fun getPorcentajeColor(color: Int): List<Int> {
@@ -265,19 +308,6 @@ class ImageDetection : PApplet() {
         return true
     }
 
-    fun if_ColorBelow(color: Int, umbral:Int): Boolean {
-         if (red(color) < umbral && green(color) < umbral && blue(color) < umbral) {
-            return true
-        }
-        return false
-    }
-
-    fun if_ColorAbove(color: Int, umbral:Int): Boolean {
-        if (red(color) > umbral && green(color) > umbral && blue(color) > umbral) {
-            return true
-        }
-        return false
-    }
 
 
     // identical use to setup in Processing IDE except for size()
